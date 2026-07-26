@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import PageEffects from "@/components/PageEffects";
 import MenuList from "@/components/MenuList";
 import AskTheBar from "@/components/AskTheBar";
-import HeroGlass from "@/components/three/HeroGlass";
+import HeroDrink from "@/components/HeroDrink";
 import { getEvents, getGallery, getMenu, getVenue } from "@/content";
 
 const MARQUEE_WORDS = ["Smoke", "Silk", "Citrus", "Fire"];
@@ -26,7 +26,7 @@ export default async function Home() {
       <Header />
 
       {/* Hero */}
-      <section className="hero hero--3d">
+      <section className="hero hero--builder">
         <div className="hero__media">
           <Image
             src="/images/hero-pour.jpg"
@@ -38,7 +38,7 @@ export default async function Home() {
           />
         </div>
 
-        <HeroGlass />
+        <HeroDrink />
 
         <div className="hero__content">
           <p className="eyebrow">Guwahati · Est. 2026</p>
@@ -50,8 +50,7 @@ export default async function Home() {
             A cocktail room above the city, built for long conversations and
             short pours of something you have never had before.
           </p>
-          <span className="hero__scroll micro">Scroll</span>
-          <span className="hero__hint micro">Drag the glass</span>
+<span className="hero__scroll micro">Scroll</span>
         </div>
       </section>
 

@@ -927,3 +927,287 @@ ul {
     opacity: 0.8;
   }
 }
+
+/* ---------- drink builder hero ---------- */
+
+.drink-hero {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.drink-scene {
+  position: absolute;
+  inset: 0;
+  touch-action: pan-y;
+}
+
+.drink-scene canvas {
+  display: block;
+  cursor: grab;
+}
+
+.drink-scene canvas:active {
+  cursor: grabbing;
+}
+
+/* Orb labels (rendered into 3D space by drei's Html) */
+.orb-html {
+  pointer-events: none;
+}
+
+.orb-label {
+  pointer-events: auto;
+  display: grid;
+  gap: 0.15rem;
+  justify-items: center;
+  text-align: center;
+  background: none;
+  border: 0;
+  padding: 0.3rem 0.5rem;
+  cursor: pointer;
+  font-family: var(--font-body), sans-serif;
+  white-space: nowrap;
+  transition: transform var(--transition), opacity var(--transition);
+}
+
+.orb-label__name {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bone);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85);
+}
+
+.orb-label__note {
+  display: block;
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
+}
+
+.orb-label:hover,
+.orb-label.is-armed {
+  transform: translateY(-2px);
+}
+
+.orb-label:hover .orb-label__name,
+.orb-label.is-armed .orb-label__name {
+  color: var(--brass-soft);
+}
+
+.orb-label.is-dragging {
+  opacity: 0.5;
+}
+
+/* Read-out and CTA */
+.drink-readout {
+  position: absolute;
+  left: var(--pad);
+  bottom: clamp(38px, 7vh, 92px);
+  z-index: 3;
+  display: grid;
+  gap: 1.1rem;
+  max-width: 26rem;
+  pointer-events: none;
+}
+
+.drink-readout > * {
+  pointer-events: auto;
+}
+
+.drink-readout__eyebrow {
+  font-size: 0.68rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--brass);
+  margin-bottom: 0.7rem;
+}
+
+.drink-readout__name {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.9rem, 3.6vw, 3.1rem);
+  font-weight: 300;
+  letter-spacing: -0.028em;
+  line-height: 1.04;
+  color: var(--bone);
+}
+
+.drink-readout__name.is-signature {
+  color: var(--brass-soft);
+}
+
+.drink-readout__blurb {
+  margin-top: 0.7rem;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  color: rgba(242, 237, 227, 0.66);
+  max-width: 24em;
+}
+
+.drink-cta {
+  display: grid;
+  gap: 0.6rem;
+  justify-items: start;
+}
+
+.drink-cta .slab {
+  max-width: 22rem;
+  padding: 1.1em 1.4em;
+}
+
+.drink-reset {
+  justify-self: start;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-family: var(--font-body), sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  padding-bottom: 0.35em;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.drink-reset:hover {
+  color: var(--brass);
+  border-color: var(--brass);
+}
+
+/* With the builder present the hero copy steps aside */
+.hero--builder .hero__content {
+  position: relative;
+  z-index: 4;
+  pointer-events: none;
+  align-self: flex-start;
+  padding-top: clamp(96px, 14vh, 170px);
+}
+
+.hero--builder .hero__title {
+  max-width: 7em;
+  font-size: clamp(2.3rem, 5vw, 4.6rem);
+}
+
+.hero--builder .body-copy,
+.hero--builder .hero__scroll {
+  display: none;
+}
+
+.hero--builder .hero__media img {
+  opacity: 0.2;
+}
+
+.hero--builder .hero__media::after {
+  background: radial-gradient(
+      100% 70% at 50% 45%,
+      rgba(14, 12, 11, 0.55) 0%,
+      rgba(14, 12, 11, 0.9) 70%,
+      rgba(14, 12, 11, 0.98) 100%
+    );
+}
+
+@media (max-width: 980px) {
+  .drink-readout {
+    max-width: 18rem;
+  }
+
+  .drink-readout__blurb {
+    display: none;
+  }
+}
+
+@media (max-width: 860px) {
+  .hero--builder .hero__content {
+    padding-top: clamp(80px, 12vh, 120px);
+  }
+
+  .hero--builder .hero__title {
+    font-size: clamp(2rem, 8vw, 2.6rem);
+  }
+
+  .hero--builder .body-copy,
+  .hero--builder .hero__scroll,
+  .hero--builder .hero__hint {
+    display: none;
+  }
+
+  .drink-readout {
+    left: var(--pad);
+    right: var(--pad);
+    bottom: clamp(20px, 4vh, 40px);
+    max-width: none;
+  }
+
+  .drink-readout__name {
+    font-size: clamp(1.5rem, 6.5vw, 2rem);
+  }
+
+  .orb-label__note {
+    display: none;
+  }
+
+  .orb-label__name {
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+  }
+}
+
+
+/* ---------- phone ingredient chips ---------- */
+
+/* Desktop drags the orbs directly; this row is the phone affordance. */
+.drink-chips {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .drink-chips {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-inline: calc(var(--pad) * -1);
+    padding-inline: var(--pad);
+    padding-block: 0.3rem;
+    order: -1;
+  }
+
+  .drink-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .drink-chip {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(21, 18, 17, 0.9);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--bone);
+    font-family: var(--font-body), sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0.85em 1.15em;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .drink-chip:active {
+    border-color: var(--brass);
+  }
+
+  .drink-chip__dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--chip);
+    box-shadow: 0 0 8px var(--chip);
+  }
+}
