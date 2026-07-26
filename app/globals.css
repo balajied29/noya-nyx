@@ -17,6 +17,12 @@
   --pad: clamp(22px, 4vw, 86px);
   --maxw: 1240px;
 
+  /* The page's content container, expressed as an inset. Anything that should
+     line up with the sections uses this rather than --pad, so the header, the
+     hero frame and every section resolve to one shared edge. */
+  --content-max: 1180px;
+  --gutter: max(var(--pad), calc((100vw - var(--content-max)) / 2));
+
   /* Host Grotesk carries the whole site; hierarchy comes from weight and
      tracking rather than from a second family. */
   --font-display: var(--font-host);
@@ -209,7 +215,7 @@ ul {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.1rem var(--pad);
+  padding: 1.1rem var(--gutter);
   transition: background var(--transition), padding var(--transition),
     border-color var(--transition);
   border-bottom: 1px solid transparent;
@@ -767,7 +773,7 @@ ul {
 
 @media (max-width: 860px) {
   .header {
-    padding-inline: var(--pad);
+    padding-inline: var(--gutter);
   }
 
   .header--solid {
@@ -1350,7 +1356,7 @@ a:hover > .logo,
   /* One frame shared by the canvas, its scrim and the copy, so the hero reads
      as an inset panel rather than bleeding to the screen edges. */
   --frame-top: clamp(84px, 10.5vh, 116px);
-  --frame-x: max(var(--pad), calc((100vw - 1180px) / 2));
+  --frame-x: var(--gutter);
   --frame-bottom: clamp(26px, 5.5vh, 58px);
 
   position: relative;
@@ -1463,7 +1469,6 @@ a:hover > .logo,
 
 @media (max-width: 860px) {
   .table-hero {
-    --frame-x: var(--pad);
     --frame-bottom: clamp(20px, 4vh, 34px);
   }
 
