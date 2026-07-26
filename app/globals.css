@@ -855,7 +855,7 @@ ul {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 1500px;
+  max-width: 1180px;
   margin-inline: auto;
   display: flex;
   align-items: baseline;
@@ -877,7 +877,7 @@ ul {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 1500px;
+  max-width: 1180px;
   margin-inline: auto;
   display: grid;
   grid-template-rows: 1fr auto;
@@ -900,8 +900,8 @@ ul {
 
 .lineup__grid {
   display: grid;
-  grid-template-columns: minmax(0, 34rem) minmax(0, 1fr);
-  gap: clamp(1.5rem, 3.5vw, 3.5rem);
+  grid-template-columns: minmax(0, 34rem) 1fr;
+  gap: clamp(1.5rem, 4vw, 4.5rem);
   align-items: stretch;
   min-height: 0;
 }
@@ -1035,7 +1035,11 @@ ul {
 .plate {
   position: relative;
   height: 100%;
-  min-height: clamp(200px, 34svh, 430px);
+  /* Portrait, matching the source photographs — no more centre-cropping the
+     glass out of the bottom of the frame. */
+  aspect-ratio: 4 / 5;
+  min-height: 0;
+  justify-self: end;
 }
 
 .plate__figure {
@@ -1127,9 +1131,13 @@ ul {
 
   .plate {
     order: -1;
-    height: min(38svh, 320px);
+    /* Single column here — end-alignment is a two-column concern and would
+       shove the photograph off the left margin. */
+    justify-self: start;
+    height: auto;
+    width: min(100%, 20rem);
+    max-height: 42svh;
     min-height: 0;
-    max-width: 26rem;
   }
 
   .spec__name {
