@@ -58,7 +58,7 @@ function Table({ pointer, lowPower, liftRef, hoverRef, pulseRef }: Props) {
 
   const geo = useMemo(() => {
     const seg = lowPower ? 128 : 320;
-    return new THREE.PlaneGeometry(6, 6, seg, seg);
+    return new THREE.PlaneGeometry(7.4, 7.4, seg, seg);
   }, [lowPower]);
 
   useMemo(() => {
@@ -253,7 +253,7 @@ function Table({ pointer, lowPower, liftRef, hoverRef, pulseRef }: Props) {
       2.4,
       d,
     );
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(-0.85, 0, 0);
   });
 
   return (
@@ -282,7 +282,7 @@ export default function TableScene({
       dpr={lowPower ? [1, 1.4] : [1, 2]}
       frameloop={active ? "always" : "never"}
       gl={{ antialias: !lowPower, alpha: true, powerPreference: "high-performance" }}
-      camera={{ position: [0, 4.6, 6.6], fov: 34 }}
+      camera={{ position: [0, 4.6, 6.9], fov: 36 }}
       style={{ background: "transparent" }}
     >
       <Suspense fallback={null}>

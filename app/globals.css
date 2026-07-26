@@ -1347,6 +1347,12 @@ a:hover > .logo,
    ========================================================= */
 
 .table-hero {
+  /* One frame shared by the canvas, its scrim and the copy, so the hero reads
+     as an inset panel rather than bleeding to the screen edges. */
+  --frame-top: clamp(84px, 10.5vh, 116px);
+  --frame-x: max(var(--pad), calc((100vw - 1180px) / 2));
+  --frame-bottom: clamp(26px, 5.5vh, 58px);
+
   position: relative;
   min-height: 100svh;
   display: grid;
@@ -1359,8 +1365,10 @@ a:hover > .logo,
 
 .table-hero__stage {
   position: absolute;
-  inset: 0;
+  inset: var(--frame-top) var(--frame-x) var(--frame-bottom);
   z-index: 0;
+  overflow: hidden;
+  border-radius: 3px;
   cursor: grab;
   touch-action: pan-y;
 }
@@ -1383,9 +1391,10 @@ a:hover > .logo,
 .table-hero::after {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: var(--frame-top) var(--frame-x) var(--frame-bottom);
   z-index: 1;
   pointer-events: none;
+  border-radius: 3px;
   background:
     linear-gradient(to right, rgba(14, 12, 11, 0.92) 0%, rgba(14, 12, 11, 0.35) 42%, transparent 68%),
     linear-gradient(to top, rgba(14, 12, 11, 0.85) 0%, transparent 40%);
@@ -1397,8 +1406,8 @@ a:hover > .logo,
   align-self: center;
   display: grid;
   gap: 1.4rem;
-  max-width: min(30rem, 46vw);
-  padding: clamp(96px, 12vh, 150px) var(--pad) 0;
+  max-width: min(30rem, 42vw);
+  padding: var(--frame-top) var(--frame-x) 0 var(--frame-x);
   pointer-events: none;
 }
 
@@ -1433,7 +1442,8 @@ a:hover > .logo,
   position: relative;
   z-index: 2;
   justify-self: start;
-  margin: 0 0 clamp(24px, 4vh, 48px) var(--pad);
+  margin: 0 0 calc(var(--frame-bottom) + clamp(16px, 2.4vh, 30px))
+    var(--frame-x);
   padding-bottom: 0.4em;
   border-bottom: 1px solid var(--line);
   color: var(--muted);
@@ -1452,9 +1462,13 @@ a:hover > .logo,
 }
 
 @media (max-width: 860px) {
+  .table-hero {
+    --frame-x: var(--pad);
+    --frame-bottom: clamp(20px, 4vh, 34px);
+  }
+
   .table-hero__copy {
     max-width: none;
-    padding-top: clamp(88px, 12vh, 120px);
   }
 
   /* The plane fills the frame on a phone and the tabletop is pale, so the
