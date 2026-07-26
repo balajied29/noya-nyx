@@ -818,3 +818,112 @@ ul {
   margin-inline: auto;
   color: rgba(242, 237, 227, 0.13);
 }
+
+/* ---------- 3D hero ---------- */
+
+.glass-scene {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.glass-scene:active {
+  cursor: grabbing;
+}
+
+.glass-scene canvas {
+  display: block;
+}
+
+/* With the object present, the photograph drops back to a texture and the
+   copy moves left so the two do not fight for the same space. */
+.hero--3d .hero__media img {
+  opacity: 0.42;
+  filter: saturate(0.85);
+}
+
+.hero--3d .hero__media::after {
+  background: radial-gradient(
+      110% 75% at 62% 45%,
+      rgba(14, 12, 11, 0.35) 0%,
+      rgba(14, 12, 11, 0.82) 68%,
+      rgba(14, 12, 11, 0.96) 100%
+    ),
+    linear-gradient(to top, rgba(9, 8, 7, 0.96) 0%, rgba(9, 8, 7, 0) 58%);
+}
+
+.hero--3d .hero__content {
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+  max-width: min(var(--maxw), 100%);
+}
+
+/* Links stay clickable; the rest of the block lets drags through to the canvas. */
+.hero--3d .hero__content a,
+.hero--3d .hero__content button {
+  pointer-events: auto;
+}
+
+.hero--3d .hero__title {
+  /* Wraps to three short lines, leaving the right half for the object. */
+  max-width: 6.2em;
+}
+
+.hero--3d .body-copy {
+  max-width: 27em;
+}
+
+.hero__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-left: 1.6rem;
+  color: var(--brass);
+  opacity: 0.75;
+}
+
+.hero__hint::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: hintPulse 2s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+@media (max-width: 860px) {
+  /* Phone: the object sits above the copy rather than behind it. */
+  .hero--3d {
+    align-items: flex-end;
+  }
+
+  .glass-scene {
+    inset: auto 0 auto 0;
+    top: 3svh;
+    height: 42svh;
+  }
+
+  .hero--3d .hero__content {
+    padding-bottom: 2vh;
+  }
+
+  .hero__hint {
+    margin-left: 0;
+    margin-top: 0.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__hint::before {
+    animation: none;
+    opacity: 0.8;
+  }
+}
