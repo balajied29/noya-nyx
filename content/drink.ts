@@ -74,7 +74,7 @@ export const INGREDIENTS: Ingredient[] = [
     note: "A few dashes",
     color: "#6b2412",
     glow: "#40140a",
-    volume: 0.06,
+    volume: 0.1,
     density: 0.6,
     angle: 300,
   },
@@ -101,11 +101,25 @@ export const INGREDIENTS: Ingredient[] = [
   },
 ];
 
+/**
+ * The build, in order. Scrolling the stage pours these one at a time, so the
+ * sequence *is* the recipe — reaching the end is reaching the house serve.
+ */
+export const POUR_SEQUENCE: IngredientId[] = [
+  "spirit",
+  "honey",
+  "citrus",
+  "bitters",
+  "ice",
+  "garnish",
+];
+
 /** The core pours that make the signature serve. Garnish is decorative. */
 export const SIGNATURE_RECIPE: IngredientId[] = [
   "spirit",
   "honey",
   "citrus",
+  "bitters",
   "ice",
 ];
 

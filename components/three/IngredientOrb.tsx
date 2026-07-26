@@ -2,7 +2,6 @@
 
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Html } from "@react-three/drei";
 import * as THREE from "three";
 import type { Ingredient } from "@/content/drink";
 
@@ -12,7 +11,7 @@ export const ORB_HEIGHT = 1.6;
 /**
  * Orbs sit on an ellipse around the glass. On a phone the viewport is far
  * narrower than it is tall, so a circular ring pushed the outer orbs off
- * screen entirely — squash it horizontally and stretch it vertically there.
+ * screen — squash it horizontally and stretch it vertically there.
  */
 export function orbHome(ing: Ingredient, narrow = false): THREE.Vector3 {
   const a = (ing.angle * Math.PI) / 180;
@@ -27,30 +26,22 @@ export function orbHome(ing: Ingredient, narrow = false): THREE.Vector3 {
 
 type Props = {
   ingredient: Ingredient;
-  used: boolean;
-  dragging: boolean;
-  armed: boolean;
-  position: THREE.Vector3;
+  /** Once poured the orb flies to the mouth of the glass and vanishes. */
+  poured: boolean;
+  target: THREE.Vector3;
   lowPower: boolean;
-  hideLabel?: boolean;
-  onGrab: (id: string, e: PointerEvent) => void;
-  onActivate: (id: string) => void;
 };
 
 export default function IngredientOrb({
   ingredient,
-  used,
-  dragging,
-  armed,
-  position,
+  poured,
+  target,
   lowPower,
-  hideLabel = false,
-  onGrab,
-  onActivate,
 }: Props) {
   const group = useRef<THREE.Group>(null);
   const floatGroup = useRef<THREE.Group>(null);
   const inner = useRef<THREE.Mesh>(null);
+  const gone = useRef(0);
   const seed = useMemo(() => Math.random() * 10, []);
   const color = useMemo(
     () => new THREE.Color(ingredient.color),
@@ -58,27 +49,19 @@ export default function IngredientOrb({
   );
 
   useFrame((state, delta) => {
-    if (!group.current) return;
+    if (!group.current || !floatGroup.current) return;
     const d = Math.min(delta, 0.05);
     const t = state.clock.elapsedTime;
 
-    group.current.position.lerp(position, dragging ? 0.55 : 0.12);
+    // Poured orbs travel to the mouth, then shrink out of existence.
+    group.current.position.lerp(target, poured ? 0.12 : 0.09);
 
-    if (floatGroup.current) {
-      // Absolute offset, not accumulated — settles instead of drifting.
-      floatGroup.current.position.y = dragging
-        ? 0
-        : Math.sin(t * 0.9 + seed) * 0.045;
+    gone.current = THREE.MathUtils.damp(gone.current, poured ? 1 : 0, 3.5, d);
 
-      const targetScale = used ? 0.001 : dragging ? 1.22 : armed ? 1.12 : 1;
-      const s = THREE.MathUtils.damp(
-        floatGroup.current.scale.x,
-        targetScale,
-        used ? 6 : 4,
-        d
-      );
-      floatGroup.current.scale.setScalar(s);
-    }
+    floatGroup.current.position.y = poured
+      ? 0
+      : Math.sin(t * 0.9 + seed) * 0.045;
+    floatGroup.current.scale.setScalar(Math.max(1 - gone.current, 0.001));
 
     if (inner.current) {
       inner.current.rotation.y = t * 0.5 + seed;
@@ -86,78 +69,37 @@ export default function IngredientOrb({
     }
   });
 
-  if (used) return null;
-
   return (
-    <group ref={group} position={position.clone()}>
-     <group ref={floatGroup}>
-      {/* Generous invisible hit area — the visible orb is small. */}
-      <mesh
-        onPointerDown={(e) => {
-          e.stopPropagation();
-          onGrab(ingredient.id, e.nativeEvent as PointerEvent);
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <sphereGeometry args={[0.36, 12, 12]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
+    <group ref={group} position={target.clone()}>
+      <group ref={floatGroup}>
+        <mesh ref={inner} renderOrder={6}>
+          <sphereGeometry args={[0.2, lowPower ? 16 : 32, lowPower ? 16 : 32]} />
+          <meshPhysicalMaterial
+            color={color}
+            roughness={0.16}
+            metalness={0.05}
+            transmission={lowPower ? 0 : 0.45}
+            thickness={0.5}
+            ior={1.4}
+            emissive={new THREE.Color(ingredient.glow ?? ingredient.color)}
+            emissiveIntensity={0.45}
+            transparent={!lowPower}
+          />
+        </mesh>
 
-      {/* The bead itself */}
-      <mesh ref={inner} renderOrder={6}>
-        <sphereGeometry args={[0.2, lowPower ? 18 : 34, lowPower ? 18 : 34]} />
-        <meshPhysicalMaterial
-          color={color}
-          roughness={0.16}
-          metalness={0.05}
-          transmission={lowPower ? 0 : 0.45}
-          thickness={0.5}
-          ior={1.4}
-          emissive={new THREE.Color(ingredient.glow ?? ingredient.color)}
-          emissiveIntensity={armed || dragging ? 0.85 : 0.4}
-          transparent={!lowPower}
-          opacity={1}
-        />
-      </mesh>
+        <mesh renderOrder={5} scale={1.3}>
+          <sphereGeometry args={[0.22, 16, 16]} />
+          <meshBasicMaterial
+            color={color}
+            transparent
+            opacity={0.09}
+            depthWrite={false}
+            side={THREE.BackSide}
+            toneMapped={false}
+          />
+        </mesh>
 
-      {/* Halo */}
-      <mesh renderOrder={5} scale={armed || dragging ? 1.5 : 1.25}>
-        <sphereGeometry args={[0.22, 16, 16]} />
-        <meshBasicMaterial
-          color={color}
-          transparent
-          opacity={armed || dragging ? 0.16 : 0.07}
-          depthWrite={false}
-          side={THREE.BackSide}
-          toneMapped={false}
-        />
-      </mesh>
-
-      {!hideLabel && (
-      <Html
-        center
-        distanceFactor={9}
-        position={[0, -0.44, 0]}
-        wrapperClass="orb-html"
-        zIndexRange={[20, 0]}
-      >
-        <button
-          className={`orb-label ${dragging ? "is-dragging" : ""} ${
-            armed ? "is-armed" : ""
-          }`}
-          onClick={() => onActivate(ingredient.id)}
-          // Pointer-down is handled by the 3D hit area; this is the
-          // keyboard/tap path so the builder works without dragging.
-          type="button"
-        >
-          <span className="orb-label__name">{ingredient.label}</span>
-          <span className="orb-label__note">{ingredient.note}</span>
-        </button>
-      </Html>
-      )}
-     </group>
+      </group>
     </group>
   );
 }

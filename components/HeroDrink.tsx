@@ -5,17 +5,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   INGREDIENTS,
+  POUR_SEQUENCE,
   SIGNATURE,
-  isSignature,
-  nameFor,
   type IngredientId,
 } from "@/content/drink";
-import type { BuilderState } from "./three/DrinkScene";
+import { playChime, playPour, primeAudio } from "@/lib/chime";
 
 const DrinkScene = dynamic(() => import("./three/DrinkScene"), {
   ssr: false,
   loading: () => null,
 });
+
+const STEPS = POUR_SEQUENCE.length;
 
 function detectWebGL(): boolean {
   try {
@@ -29,22 +30,18 @@ function detectWebGL(): boolean {
   }
 }
 
-export default function HeroDrink() {
+export default function HeroDrink({
+  stageRef,
+}: {
+  stageRef: React.RefObject<HTMLElement | null>;
+}) {
   const [caps, setCaps] = useState<{ show: boolean; lowPower: boolean } | null>(
     null
   );
-  const [state, setState] = useState<BuilderState>({
-    poured: [],
-    matched: false,
-  });
-  const [resetSignal, setResetSignal] = useState(0);
-  const api = useRef<{ add: (id: IngredientId) => void } | null>(null);
-  const onApi = useCallback(
-    (a: { add: (id: IngredientId) => void }) => {
-      api.current = a;
-    },
-    []
-  );
+  const [step, setStep] = useState(0);
+  const [active, setActive] = useState(true);
+  const stepRef = useRef(0);
+  const soundedRef = useRef(0);
 
   useEffect(() => {
     if (!detectWebGL()) return setCaps({ show: false, lowPower: false });
@@ -59,94 +56,158 @@ export default function HeroDrink() {
     setCaps({ show: true, lowPower: coarse || narrow || cores <= 4 });
   }, []);
 
-  const onChange = useCallback((s: BuilderState) => setState(s), []);
+  /**
+   * Scroll drives the build.
+   *
+   * The handler fires on every scroll event but only calls setState when the
+   * step index actually changes, so scrolling the whole stage causes a handful
+   * of re-renders rather than hundreds — and layout reads are one
+   * getBoundingClientRect, inside rAF.
+   */
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || !caps?.show) return;
 
-  const core = useMemo(
-    () =>
-      state.poured.filter(
-        (id) => !INGREDIENTS.find((i) => i.id === id)?.decorative
-      ) as IngredientId[],
-    [state.poured]
+    let ticking = false;
+    const measure = () => {
+      ticking = false;
+      const rect = el.getBoundingClientRect();
+      const travel = el.offsetHeight - window.innerHeight;
+      if (travel <= 0) return;
+      const p = Math.min(Math.max(-rect.top / travel, 0), 1);
+      // The final stretch holds on the finished drink so the CTA can be read.
+      const next = Math.min(STEPS, Math.floor(p * (STEPS + 1)));
+      if (next !== stepRef.current) {
+        stepRef.current = next;
+        setStep(next);
+      }
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(measure);
+    };
+
+    measure();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [stageRef, caps?.show]);
+
+  // Stop rendering entirely once the stage is off screen.
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el || !caps?.show) return;
+    const io = new IntersectionObserver(
+      ([entry]) => setActive(entry.isIntersecting),
+      { rootMargin: "120px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [stageRef, caps?.show]);
+
+  const poured = useMemo(
+    () => POUR_SEQUENCE.slice(0, step) as IngredientId[],
+    [step]
   );
+  const complete = step >= STEPS;
+  const current = step > 0 ? POUR_SEQUENCE[step - 1] : null;
+  const currentIng = INGREDIENTS.find((i) => i.id === current);
 
-  const matched = isSignature(core);
-  const name = matched ? SIGNATURE.name : nameFor(core);
-  const started = state.poured.length > 0;
+  // Sound follows the scroll, forwards only, and never before a gesture.
+  useEffect(() => {
+    if (step === soundedRef.current) return;
+    const forward = step > soundedRef.current;
+    soundedRef.current = step;
+    if (!forward || step === 0) return;
+    primeAudio();
+    const ing = INGREDIENTS.find((i) => i.id === POUR_SEQUENCE[step - 1]);
+    if (ing) playPour(ing.density);
+    if (step >= STEPS) {
+      const t = window.setTimeout(playChime, 700);
+      return () => window.clearTimeout(t);
+    }
+  }, [step]);
+
+  const onSkip = useCallback(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    window.scrollTo({
+      top: el.offsetTop + el.offsetHeight - window.innerHeight,
+      behavior: "smooth",
+    });
+  }, [stageRef]);
 
   if (!caps?.show) return null;
 
   return (
     <div className="drink-hero">
-      <DrinkScene
-        lowPower={caps.lowPower}
-        onChange={onChange}
-        resetSignal={resetSignal}
-        onApi={onApi}
-      />
+      <DrinkScene poured={poured} lowPower={caps.lowPower} active={active} />
 
-      {/* Read-out: always names what is in the glass. No failure state. */}
       <div className="drink-readout">
-        {/*
-          Phone control surface. The 3D labels sit around the glass, which
-          overlaps and overflows at narrow aspect ratios — these are real
-          buttons, and they live in normal flow so they can never collide
-          with the read-out as it grows.
-        */}
-        <div className="drink-chips">
-          {INGREDIENTS.filter((i) => !state.poured.includes(i.id)).map((ing) => (
-            <button
-              key={ing.id}
-              className="drink-chip"
-              style={{ ["--chip" as string]: ing.color }}
-              onClick={() => api.current?.add(ing.id)}
-            >
-              <span className="drink-chip__dot" />
-              {ing.label}
-            </button>
+        <div className="pour-rail" aria-hidden>
+          {POUR_SEQUENCE.map((id, i) => (
+            <span
+              key={id}
+              className={`pour-rail__tick ${i < step ? "is-done" : ""}`}
+              style={{
+                ["--tick" as string]:
+                  INGREDIENTS.find((x) => x.id === id)?.color ?? "#fff",
+              }}
+            />
           ))}
         </div>
+
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${name}-${matched}`}
-            initial={{ opacity: 0, y: 12 }}
+            key={complete ? "done" : (current ?? "idle")}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
           >
             <p className="drink-readout__eyebrow">
-              {matched
+              {complete
                 ? "The house serve"
-                : started
-                  ? "Your pour"
-                  : "Build a drink"}
+                : step === 0
+                  ? "Build the house serve"
+                  : `Pour ${step} of ${STEPS}`}
             </p>
             <p
-              className={`drink-readout__name ${
-                matched ? "is-signature" : ""
-              }`}
+              className={`drink-readout__name ${complete ? "is-signature" : ""}`}
             >
-              {started ? name : "Drag an ingredient in"}
+              {complete
+                ? SIGNATURE.name
+                : step === 0
+                  ? "Scroll to pour"
+                  : (currentIng?.label ?? "")}
             </p>
-            {matched ? (
-              <p className="drink-readout__blurb">{SIGNATURE.blurb}</p>
-            ) : (
-              <p className="drink-readout__blurb">
-                {started
-                  ? "Keep going — every combination pours."
-                  : "Six things on the shelf. Four of them make something we actually serve."}
-              </p>
-            )}
+            <p className="drink-readout__blurb">
+              {complete
+                ? SIGNATURE.blurb
+                : step === 0
+                  ? "Six pours, in order. Keep scrolling and the glass fills."
+                  : (currentIng?.note ?? "")}
+            </p>
           </motion.div>
         </AnimatePresence>
 
         <AnimatePresence>
-          {matched && (
+          {complete && (
             <motion.div
               className="drink-cta"
               initial={{ opacity: 0, y: 26 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 16 }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.35 }}
+              transition={{
+                duration: 0.65,
+                ease: [0.16, 1, 0.3, 1],
+                delay: 0.25,
+              }}
             >
               <a className="slab slab--brass" href={SIGNATURE.primaryCta.href}>
                 <span>{SIGNATURE.primaryCta.label}</span>
@@ -160,15 +221,9 @@ export default function HeroDrink() {
           )}
         </AnimatePresence>
 
-        {started && (
-          <button
-            className="drink-reset"
-            onClick={() => {
-              setResetSignal((n) => n + 1);
-              setState({ poured: [], matched: false });
-            }}
-          >
-            Empty the glass
+        {!complete && (
+          <button className="drink-reset" onClick={onSkip}>
+            Skip the build
           </button>
         )}
       </div>

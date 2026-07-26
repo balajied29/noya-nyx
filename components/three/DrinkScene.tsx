@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { ContactShadows, Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 import DrinkGlass, { GLASS_TOP, type Layer } from "./DrinkGlass";
@@ -13,87 +13,94 @@ import {
   Splash,
   type ActivePour,
 } from "./PourEffects";
-import { INGREDIENTS, type IngredientId, type Ingredient } from "@/content/drink";
-import { playChime, playPour, primeAudio } from "@/lib/chime";
+import { INGREDIENTS, type IngredientId } from "@/content/drink";
 
-export type BuilderState = {
+/**
+ * Presentational only.
+ *
+ * What is in the glass is decided by scroll position, in the parent. Keeping
+ * this stateless means a scroll step re-renders one small tree instead of
+ * re-running builder logic inside the canvas, and it let the whole
+ * pointer-projection drag path go away.
+ */
+
+type Props = {
   poured: IngredientId[];
-  matched: boolean;
-};
-
-type SceneProps = {
   lowPower: boolean;
-  onChange: (s: BuilderState) => void;
-  resetSignal: number;
-  /** Lets HTML controls outside the canvas pour an ingredient. */
-  onApi?: (api: { add: (id: IngredientId) => void }) => void;
+  /** Render loop stops when the stage leaves the viewport. */
+  active: boolean;
 };
 
-/** Screen-space drag, projected onto the plane the orbs live on. */
-function useDragPlane() {
-  return useMemo(() => new THREE.Plane(new THREE.Vector3(0, 0, 1), -0.2), []);
-}
+const MOUTH = new THREE.Vector3(0, GLASS_TOP * 0.9, 0);
 
 function Contents({
+  poured,
   lowPower,
-  onChange,
-  resetSignal,
-  onApi,
   narrow,
-}: SceneProps & { narrow: boolean }) {
-  const { camera, raycaster, gl } = useThree();
-  const plane = useDragPlane();
-
-  const [poured, setPoured] = useState<IngredientId[]>([]);
-  const [dragId, setDragId] = useState<IngredientId | null>(null);
-  const [armed, setArmed] = useState(false);
+}: {
+  poured: IngredientId[];
+  lowPower: boolean;
+  narrow: boolean;
+}) {
   const [pours, setPours] = useState<ActivePour[]>([]);
   const [limeAt, setLimeAt] = useState<number | null>(null);
-  const matchedRef = useRef(false);
-
-  const rig = useRef<THREE.Group>(null);
-  const positions = useRef<Map<IngredientId, THREE.Vector3>>(new Map());
-  if (positions.current.size === 0) {
-    INGREDIENTS.forEach((i) => positions.current.set(i.id, orbHome(i, narrow)));
-  }
-  const [, force] = useState(0);
   const clock = useRef(0);
+  const seen = useRef<Set<IngredientId>>(new Set());
+
   useFrame((state) => {
     clock.current = state.clock.elapsedTime;
   });
 
+  // Fire pour effects for anything newly added; clear them scrolling back up.
   useEffect(() => {
-    INGREDIENTS.forEach((i) => {
-      if (!poured.includes(i.id)) {
-        positions.current.set(i.id, orbHome(i, narrow));
+    if (poured.length === 0) {
+      if (seen.current.size > 0) {
+        seen.current.clear();
+        setPours([]);
+        setLimeAt(null);
+      }
+      return;
+    }
+
+    poured.forEach((id) => {
+      if (seen.current.has(id)) return;
+      seen.current.add(id);
+      const ing = INGREDIENTS.find((i) => i.id === id);
+      if (!ing) return;
+      if (ing.decorative) {
+        setLimeAt(clock.current);
+      } else {
+        setPours((p) => [
+          ...p,
+          {
+            key: Math.random(),
+            color: new THREE.Color(ing.color),
+            density: ing.density,
+            from: orbHome(ing, narrow),
+            startedAt: clock.current,
+          },
+        ]);
       }
     });
-    force((n) => n + 1);
-    // Only re-home on breakpoint change, not on every pour.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [narrow]);
 
-  // Reset
-  useEffect(() => {
-    if (resetSignal === 0) return;
-    setPoured([]);
-    setPours([]);
-    setLimeAt(null);
-    setDragId(null);
-    matchedRef.current = false;
-    INGREDIENTS.forEach((i) => positions.current.set(i.id, orbHome(i, narrow)));
-    force((n) => n + 1);
-  }, [resetSignal, narrow]);
+    seen.current.forEach((id) => {
+      if (!poured.includes(id)) seen.current.delete(id);
+    });
+    if (!poured.includes("garnish")) setLimeAt(null);
+  }, [poured, narrow]);
+
+  useFrame(() => {
+    if (pours.length === 0) return;
+    const alive = pours.filter((p) => clock.current - p.startedAt < 2.1);
+    if (alive.length !== pours.length) setPours(alive);
+  });
 
   const core = useMemo(
     () =>
-      poured.filter(
-        (id) => !INGREDIENTS.find((i) => i.id === id)?.decorative
-      ),
+      poured.filter((id) => !INGREDIENTS.find((i) => i.id === id)?.decorative),
     [poured]
   );
 
-  // Layers are ordered by density: heaviest at the bottom.
   const layers: Layer[] = useMemo(() => {
     const list = core
       .map((id) => INGREDIENTS.find((i) => i.id === id)!)
@@ -106,153 +113,23 @@ function Contents({
   }, [core]);
 
   const fill = useMemo(
-    () => Math.min(core.reduce((s, id) => s + (INGREDIENTS.find((i) => i.id === id)?.volume ?? 0), 0), 0.92),
+    () =>
+      Math.min(
+        core.reduce(
+          (s, id) => s + (INGREDIENTS.find((i) => i.id === id)?.volume ?? 0),
+          0
+        ),
+        0.92
+      ),
     [core]
   );
 
   const frost = poured.includes("ice") ? 1 : 0;
   const settle = pours.length > 0 ? 1 : 0.25;
 
-  const commit = useCallback(
-    (ing: Ingredient) => {
-      if (poured.includes(ing.id)) return;
-      primeAudio();
-      playPour(ing.density);
-
-      const next = [...poured, ing.id];
-      setPoured(next);
-
-      if (ing.decorative) {
-        setLimeAt(clock.current);
-      } else {
-        setPours((p) => [
-          ...p,
-          {
-            key: Date.now() + Math.random(),
-            color: new THREE.Color(ing.color),
-            density: ing.density,
-            from: positions.current.get(ing.id)!.clone(),
-            startedAt: clock.current,
-          },
-        ]);
-      }
-    },
-    [poured]
-  );
-
-  // Report state up for the HTML overlay.
-  useEffect(() => {
-    onChange({ poured, matched: matchedRef.current });
-  }, [poured, onChange]);
-
-  // Chime once, when the pour becomes the signature.
-  useEffect(() => {
-    const isSig =
-      core.length === 4 &&
-      ["spirit", "honey", "citrus", "ice"].every((id) =>
-        core.includes(id as IngredientId)
-      );
-    if (isSig && !matchedRef.current) {
-      matchedRef.current = true;
-      const t = window.setTimeout(() => {
-        playChime();
-        onChange({ poured, matched: true });
-      }, 900);
-      return () => window.clearTimeout(t);
-    }
-    if (!isSig) matchedRef.current = false;
-  }, [core, poured, onChange]);
-
-  // Retire finished pour effects.
-  useFrame(() => {
-    if (pours.length === 0) return;
-    const alive = pours.filter((p) => clock.current - p.startedAt < 2.1);
-    if (alive.length !== pours.length) setPours(alive);
-  });
-
-  // ---- drag handling -------------------------------------------------
-  // Orb positions are in the rig's local space, so the mouth test is too.
-  const withinMouth = useCallback(
-    (p: THREE.Vector3) => Math.hypot(p.x, p.y - GLASS_TOP * 0.82) < 1.35,
-    []
-  );
-  const pointerNdc = useRef(new THREE.Vector2());
-  const hit = useRef(new THREE.Vector3());
-
-  const project = useCallback(
-    (clientX: number, clientY: number) => {
-      const rect = gl.domElement.getBoundingClientRect();
-      pointerNdc.current.set(
-        ((clientX - rect.left) / rect.width) * 2 - 1,
-        -(((clientY - rect.top) / rect.height) * 2 - 1)
-      );
-      raycaster.setFromCamera(pointerNdc.current, camera);
-      raycaster.ray.intersectPlane(plane, hit.current);
-      if (rig.current) rig.current.worldToLocal(hit.current);
-      return hit.current;
-    },
-    [camera, gl, plane, raycaster]
-  );
-
-  useEffect(() => {
-    if (!dragId) return;
-    const el = gl.domElement;
-
-    const move = (e: PointerEvent) => {
-      const p = project(e.clientX, e.clientY);
-      positions.current.set(dragId, p.clone());
-      // Over the mouth of the glass?
-      const near = withinMouth(p);
-      setArmed(near);
-      force((n) => n + 1);
-    };
-
-    const up = () => {
-      const p = positions.current.get(dragId)!;
-      const near = withinMouth(p);
-      const ing = INGREDIENTS.find((i) => i.id === dragId)!;
-      if (near) {
-        commit(ing);
-      } else {
-        positions.current.set(dragId, orbHome(ing, narrow));
-      }
-      setDragId(null);
-      setArmed(false);
-      force((n) => n + 1);
-    };
-
-    el.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", up);
-    window.addEventListener("pointercancel", up);
-    return () => {
-      el.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", up);
-      window.removeEventListener("pointercancel", up);
-    };
-  }, [dragId, gl, project, commit, narrow, withinMouth]);
-
-  const onGrab = useCallback((id: string) => {
-    setDragId(id as IngredientId);
-  }, []);
-
-  const onActivate = useCallback(
-    (id: string) => {
-      const ing = INGREDIENTS.find((i) => i.id === id);
-      if (ing) commit(ing);
-    },
-    [commit]
-  );
-
-  // Republish whenever commit changes, so the handle never closes over stale
-  // state — the chip row must pour the same way the orbs do.
-  useEffect(() => {
-    onApi?.({ add: (id: IngredientId) => onActivate(id) });
-  }, [onApi, onActivate]);
-
   return (
     <>
       <group
-        ref={rig}
         position={narrow ? [0, -1.5, 0] : [1.75, -1.55, 0]}
         scale={narrow ? 0.62 : 0.8}
       >
@@ -278,14 +155,9 @@ function Contents({
           <IngredientOrb
             key={ing.id}
             ingredient={ing}
-            used={poured.includes(ing.id)}
-            dragging={dragId === ing.id}
-            armed={armed && dragId === ing.id}
-            position={positions.current.get(ing.id)!}
+            poured={poured.includes(ing.id)}
+            target={poured.includes(ing.id) ? MOUTH : orbHome(ing, narrow)}
             lowPower={lowPower}
-            hideLabel={narrow}
-            onGrab={onGrab}
-            onActivate={onActivate}
           />
         ))}
       </group>
@@ -303,7 +175,7 @@ function Contents({
       <pointLight position={[-2.8, 1.6, -2.4]} intensity={16} color="#d9a862" />
       <pointLight position={[2.6, 0.6, -2.8]} intensity={9} color="#ff6a3d" />
 
-      <Environment resolution={lowPower ? 128 : 256}>
+      <Environment resolution={lowPower ? 96 : 256}>
         <Lightformer form="rect" intensity={9} color="#ffe2bd" position={[0, 5, 2]} scale={[7, 3, 1]} target={[0, 0, 0]} />
         <Lightformer form="rect" intensity={6} color="#d9a862" position={[-4, 1.4, -2]} scale={[4, 5, 1]} target={[0, 0, 0]} />
         <Lightformer form="circle" intensity={4.5} color="#ff7a45" position={[3.6, 0.6, -3]} scale={[3, 3, 1]} target={[0, 0, 0]} />
@@ -324,13 +196,9 @@ function Contents({
   );
 }
 
-export default function DrinkScene({
-  lowPower,
-  onChange,
-  resetSignal,
-  onApi,
-}: SceneProps) {
+export default function DrinkScene({ poured, lowPower, active }: Props) {
   const [narrow, setNarrow] = useState(false);
+
   useEffect(() => {
     const q = window.matchMedia("(max-width: 860px)");
     setNarrow(q.matches);
@@ -342,19 +210,20 @@ export default function DrinkScene({
   return (
     <div className="drink-scene">
       <Canvas
-        dpr={lowPower ? [1, 1.5] : [1, 2]}
-        gl={{ antialias: !lowPower, alpha: true, powerPreference: "high-performance" }}
+        // Phones pay for transmission per pixel, so cap hard there.
+        dpr={lowPower ? [1, 1.25] : [1, 2]}
+        // No GPU work at all once the stage has scrolled away.
+        frameloop={active ? "always" : "never"}
+        gl={{
+          antialias: !lowPower,
+          alpha: true,
+          powerPreference: "high-performance",
+        }}
         camera={{ position: [0, 0.3, 8.2], fov: 32 }}
         style={{ background: "transparent" }}
       >
         <Suspense fallback={null}>
-          <Contents
-            lowPower={lowPower}
-            onChange={onChange}
-            resetSignal={resetSignal}
-            onApi={onApi}
-            narrow={narrow}
-          />
+          <Contents poured={poured} lowPower={lowPower} narrow={narrow} />
         </Suspense>
       </Canvas>
     </div>

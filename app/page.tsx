@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import PageEffects from "@/components/PageEffects";
 import MenuList from "@/components/MenuList";
 import AskTheBar from "@/components/AskTheBar";
-import HeroDrink from "@/components/HeroDrink";
+import DrinkStage from "@/components/DrinkStage";
 import { getEvents, getGallery, getMenu, getVenue } from "@/content";
 
 const MARQUEE_WORDS = ["Smoke", "Silk", "Citrus", "Fire"];
@@ -25,34 +25,7 @@ export default async function Home() {
       <PageEffects />
       <Header />
 
-      {/* Hero */}
-      <section className="hero hero--builder">
-        <div className="hero__media">
-          <Image
-            src="/images/hero-pour.jpg"
-            alt="A cocktail finished over smoke at the Noya bar"
-            fill
-            priority
-            sizes="100vw"
-            quality={62}
-          />
-        </div>
-
-        <HeroDrink />
-
-        <div className="hero__content">
-          <p className="eyebrow">Guwahati · Est. 2026</p>
-          <h1 className="hero__title display display--xl">
-            Not every door is
-            <span className="accent-italic">marked.</span>
-          </h1>
-          <p className="body-copy">
-            A cocktail room above the city, built for long conversations and
-            short pours of something you have never had before.
-          </p>
-<span className="hero__scroll micro">Scroll</span>
-        </div>
-      </section>
+      <DrinkStage />
 
       {/* 01 — The room */}
       <section className="section" id="room">

@@ -957,7 +957,7 @@ ul {
 }
 
 .orb-label {
-  pointer-events: auto;
+  pointer-events: none;
   display: grid;
   gap: 0.15rem;
   justify-items: center;
@@ -1166,16 +1166,7 @@ ul {
 }
 
 @media (max-width: 860px) {
-  .drink-chips {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    margin-inline: calc(var(--pad) * -1);
-    padding-inline: var(--pad);
-    padding-block: 0.3rem;
-    order: -1;
-  }
+  .drink-chips { display: none; }
 
   .drink-chips::-webkit-scrollbar {
     display: none;
@@ -1209,5 +1200,68 @@ ul {
     border-radius: 50%;
     background: var(--chip);
     box-shadow: 0 0 8px var(--chip);
+  }
+}
+
+/* ---------- scroll stage ---------- */
+
+.stage {
+  position: relative;
+  /* One viewport to read, then scroll distance per pour, then a hold on the
+     finished drink. Shorter per-step travel on phones so it is not endless. */
+  --step-travel: 80vh;
+  height: calc(100svh + 6 * var(--step-travel) + 60vh);
+}
+
+.stage__pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.stage__pin .hero {
+  min-height: 100svh;
+  height: 100svh;
+}
+
+/* Progress rail through the pours */
+.pour-rail {
+  display: flex;
+  gap: 0.35rem;
+  margin-bottom: 1.2rem;
+}
+
+.pour-rail__tick {
+  width: 26px;
+  height: 2px;
+  background: rgba(242, 237, 227, 0.18);
+  transition: background 0.45s var(--ease), box-shadow 0.45s var(--ease);
+}
+
+.pour-rail__tick.is-done {
+  background: var(--tick);
+  box-shadow: 0 0 10px var(--tick);
+}
+
+@media (max-width: 860px) {
+  .stage {
+    --step-travel: 62vh;
+    height: calc(100svh + 6 * var(--step-travel) + 46vh);
+  }
+
+  .pour-rail__tick {
+    width: 18px;
+  }
+}
+
+/* Motion-sensitive visitors get the whole drink without the scroll ride. */
+@media (prefers-reduced-motion: reduce) {
+  .stage {
+    height: auto;
+  }
+
+  .stage__pin {
+    position: relative;
   }
 }
