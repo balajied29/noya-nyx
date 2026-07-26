@@ -44,7 +44,14 @@ type Props = {
 const RIPPLES = 8;
 
 function Table({ pointer, lowPower, liftRef, hoverRef, pulseRef }: Props) {
-  const tex = useLoader(THREE.TextureLoader, "/images/bar-table.jpg");
+  // Two maps: the sharp photograph for colour, and a heavily downscaled copy
+  // for depth. Displacing from the full-resolution image turned its
+  // high-frequency detail into spikes; downscaling low-passes it into the
+  // smooth mounds the glasses actually are.
+  const [tex, depth] = useLoader(THREE.TextureLoader, [
+    "/images/bar-table.jpg",
+    "/images/bar-table-depth.jpg",
+  ]);
   const mesh = useRef<THREE.Mesh>(null);
   const key = useRef<THREE.PointLight>(null);
   const { camera } = useThree();
@@ -229,7 +236,7 @@ function Table({ pointer, lowPower, liftRef, hoverRef, pulseRef }: Props) {
       // A raking light that follows the cursor and glances off the glasses.
       // The lift surge is modest on purpose: doubling it washed the pale
       // tablecloth out to white once bloom picked it up.
-      key.current.position.set(p.x * 4.2, 1.6 + lift * 1.4, p.y * 3.4 + 2.2);
+      key.current.position.set(p.x * 4.6, 1.8 + lift * 1.2, p.y * 3.6 + 2.6);
       key.current.intensity = 24 + lift * 9;
     }
 
@@ -242,7 +249,7 @@ function Table({ pointer, lowPower, liftRef, hoverRef, pulseRef }: Props) {
     );
     camera.position.y = THREE.MathUtils.damp(
       camera.position.y,
-      3.5 - p.y * 0.5 - lift * 0.45,
+      4.6 - p.y * 0.55 - lift * 0.5,
       2.4,
       d,
     );
@@ -275,7 +282,7 @@ export default function TableScene({
       dpr={lowPower ? [1, 1.4] : [1, 2]}
       frameloop={active ? "always" : "never"}
       gl={{ antialias: !lowPower, alpha: true, powerPreference: "high-performance" }}
-      camera={{ position: [0, 3.5, 4.4], fov: 38 }}
+      camera={{ position: [0, 4.6, 6.6], fov: 34 }}
       style={{ background: "transparent" }}
     >
       <Suspense fallback={null}>
