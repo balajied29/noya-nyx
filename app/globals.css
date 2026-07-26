@@ -412,6 +412,11 @@ ul {
     animation: none;
     transform: scaleX(1);
   }
+
+  /* Hover still fills the wordmark with brass — just instantly. */
+  .logo {
+    transition: none;
+  }
 }
 
 /* ---------- the list ---------- */
@@ -804,9 +809,21 @@ ul {
 .logo {
   display: block;
   aspect-ratio: 2400 / 825;
-  background-color: currentColor;
+  /* A 200%-tall two-stop gradient behind the mask: the visible window shows
+     the currentColor half at rest; hovering slides the window down so the
+     brass half rises up through the letterforms — a pour, not a crossfade. */
+  background-image: linear-gradient(to top, var(--brass) 50%, currentColor 50%);
+  background-size: 100% 200%;
+  background-position: 0 0;
   -webkit-mask: url("/noya-logo.png") center / contain no-repeat;
   mask: url("/noya-logo.png") center / contain no-repeat;
+  transition: background-position 0.9s var(--ease);
+}
+
+.logo:hover,
+a:hover > .logo,
+.footer__wordmark:hover .logo {
+  background-position: 0 100%;
 }
 
 .header__brand .logo {
@@ -817,6 +834,117 @@ ul {
   width: min(100%, 62rem);
   margin-inline: auto;
   color: rgba(242, 237, 227, 0.13);
+}
+
+
+/* =========================================================
+   Events — on the calendar
+   ========================================================= */
+
+.events__list {
+  border-top: 1px solid var(--line);
+}
+
+.events__row {
+  display: grid;
+  grid-template-columns: clamp(84px, 9vw, 120px) minmax(0, 1fr) auto;
+  gap: clamp(1.2rem, 3vw, 3.4rem);
+  align-items: start;
+  padding: clamp(1.5rem, 2.6vw, 2.3rem) clamp(0.4rem, 1vw, 1rem);
+  border-bottom: 1px solid var(--line);
+  transition: background var(--transition);
+}
+
+.events__row:hover {
+  background: var(--ink-raised);
+}
+
+.events__date {
+  color: var(--brass);
+  line-height: 1;
+}
+
+.events__day {
+  display: block;
+  font-size: clamp(1.9rem, 3vw, 2.6rem);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+.events__month {
+  display: block;
+  margin-top: 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.events__standing {
+  display: block;
+  padding-top: 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.events__body h3 {
+  font-size: clamp(1.15rem, 1.8vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--bone);
+}
+
+.events__body .body-copy {
+  margin-top: 0.55rem;
+  max-width: 46ch;
+}
+
+.events__cta {
+  align-self: center;
+  white-space: nowrap;
+}
+
+.events__cta a {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--brass);
+  transition: color var(--transition);
+}
+
+.events__cta a:hover {
+  color: var(--brass-soft);
+}
+
+@media (max-width: 640px) {
+  .events__row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.8rem;
+  }
+
+  .events__date {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+
+  .events__day {
+    font-size: 1.5rem;
+  }
+
+  .events__month,
+  .events__standing {
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  .events__cta {
+    align-self: start;
+  }
 }
 
 

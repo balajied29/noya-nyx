@@ -9,6 +9,14 @@ import { getEvents, getGallery, getMenu, getVenue } from "@/content";
 
 const MARQUEE_WORDS = ["Smoke", "Silk", "Citrus", "Fire"];
 
+function eventDate(iso: string): { day: string; month: string } {
+  const d = new Date(iso);
+  return {
+    day: d.toLocaleDateString("en-IN", { day: "2-digit" }),
+    month: d.toLocaleDateString("en-IN", { month: "short" }),
+  };
+}
+
 export default async function Home() {
   // All content flows through the shared accessors, never raw imports —
   // so a dashboard-backed source drops in without touching this file.
@@ -20,6 +28,14 @@ export default async function Home() {
   ]);
 
   const buyout = events[0];
+  // The calendar: everything except the buy-out card — dated nights first
+  // (soonest first), standing offers after.
+  const calendar = events
+    .slice(1)
+    .sort((a, b) =>
+      a.date && b.date ? a.date.localeCompare(b.date) : a.date ? -1 : b.date ? 1 : 0
+    );
+  const whatsapp = `https://wa.me/${venue.phoneHref.replace(/\D/g, "")}`;
 
   return (
     <main id="top">
@@ -141,22 +157,65 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 04 — Private */}
+      {/* 04 — Events */}
+      <section className="section" id="events">
+        <div className="inner">
+          <div className="section-head" data-reveal>
+            <p className="eyebrow">04 — On the calendar</p>
+            <h2 className="display display--l">
+              Nights worth
+              <span className="accent-italic">planning around.</span>
+            </h2>
+          </div>
+
+          <div className="events__list" data-reveal>
+            {calendar.map((e) => {
+              const d = e.date ? eventDate(e.date) : null;
+              return (
+                <article key={e.id} className="events__row">
+                  <div className="events__date" aria-hidden={!d}>
+                    {d ? (
+                      <>
+                        <span className="events__day">{d.day}</span>
+                        <span className="events__month">{d.month}</span>
+                      </>
+                    ) : (
+                      <span className="events__standing">Any night</span>
+                    )}
+                  </div>
+                  <div className="events__body">
+                    <h3>{e.title}</h3>
+                    <p className="body-copy">{e.blurb}</p>
+                  </div>
+                  <div className="events__cta">
+                    {e.ctaLabel && (
+                      <a
+                        href={e.ctaHref ?? whatsapp}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {e.ctaLabel} <span aria-hidden>→</span>
+                      </a>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* 05 — Private */}
       <section className="section" id="private">
         <div className="inner">
           <div className="section-head" data-reveal>
-            <p className="eyebrow">04 — Private</p>
+            <p className="eyebrow">05 — Private</p>
             <h2 className="display display--l">{buyout.title}.</h2>
             <p className="body-copy">{buyout.blurb}</p>
           </div>
 
           <div className="private__actions" data-reveal>
-            <a
-              className="slab slab--brass"
-              href={`https://wa.me/${venue.phoneHref.replace(/\D/g, "")}`}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className="slab slab--brass" href={whatsapp} target="_blank" rel="noreferrer">
               <span>{buyout.ctaLabel}</span>
               <span aria-hidden>→</span>
             </a>
@@ -200,11 +259,7 @@ export default async function Home() {
             <div data-reveal>
               <h3>Also here</h3>
               <p>Omara, our modern Indian dining room, shares the building.</p>
-              <div style={{ marginTop: "0.9rem" }}>
-                {events.slice(1).map((e) => (
-                  <p key={e.id}>{e.title}</p>
-                ))}
-              </div>
+              {/* The nights themselves live in 04 — On the calendar now. */}
             </div>
           </div>
         </div>

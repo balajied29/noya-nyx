@@ -246,6 +246,23 @@ export const events: EventItem[] = [
       "Buy-outs, tasting menus and bar takeovers for 20–60 guests. Tell us the date and we will tell you what we can build.",
     ctaLabel: "WhatsApp the bar",
   },
+  // Dated nights are placeholders like the menu above — replace before launch.
+  {
+    id: "monsoon-flights",
+    title: "Monsoon flights",
+    blurb:
+      "Five pours built around what the rain brings up — wet earth, green mango, smoked salt. One seating, twelve stools.",
+    date: "2026-08-14",
+    ctaLabel: "Hold a stool",
+  },
+  {
+    id: "guest-shift-aug",
+    title: "Guest shift — the rail goes to Bombay",
+    blurb:
+      "A visiting bartender takes the rail for one night only. Their list, our shelf, no substitutions.",
+    date: "2026-08-29",
+    ctaLabel: "Hold a stool",
+  },
   {
     id: "residency",
     title: "Guest shifts",
