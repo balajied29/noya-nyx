@@ -1213,3 +1213,132 @@ ul {
     gap: 0.4rem;
   }
 }
+
+/* =========================================================
+   Table hero — the bar top in relief
+   ========================================================= */
+
+.table-hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% 20%, #1a1512 0%, var(--ink) 60%),
+    var(--ink);
+}
+
+.table-hero__stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.table-hero__stage:active {
+  cursor: grabbing;
+}
+
+.table-hero__stage canvas {
+  display: block;
+}
+
+/* Fallback when there is no WebGL */
+.table-hero__flat {
+  object-fit: cover;
+  opacity: 0.5;
+}
+
+/* Vignette so the copy always has something to sit on */
+.table-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgba(14, 12, 11, 0.92) 0%, rgba(14, 12, 11, 0.35) 42%, transparent 68%),
+    linear-gradient(to top, rgba(14, 12, 11, 0.85) 0%, transparent 40%);
+}
+
+.table-hero__copy {
+  position: relative;
+  z-index: 2;
+  align-self: center;
+  display: grid;
+  gap: 1.4rem;
+  max-width: min(30rem, 46vw);
+  padding: clamp(96px, 12vh, 150px) var(--pad) 0;
+  pointer-events: none;
+}
+
+.table-hero__copy .display--xl {
+  font-size: clamp(2.4rem, 5.4vw, 5rem);
+  max-width: 8em;
+}
+
+.table-hero__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--brass);
+  opacity: 0.8;
+}
+
+.table-hero__hint::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: hintPulse 2.4s ease-in-out infinite;
+}
+
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.table-hero__scroll {
+  position: relative;
+  z-index: 2;
+  justify-self: start;
+  margin: 0 0 clamp(24px, 4vh, 48px) var(--pad);
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.table-hero__scroll:hover {
+  color: var(--brass);
+  border-color: var(--brass);
+}
+
+/* The lineup is a section now, not the hero */
+.hero--lineup {
+  min-height: auto;
+  padding-top: clamp(64px, 9vh, 110px);
+}
+
+@media (max-width: 860px) {
+  .table-hero__copy {
+    max-width: none;
+    padding-top: clamp(88px, 12vh, 120px);
+  }
+
+  .table-hero::after {
+    background:
+      linear-gradient(to top, rgba(14, 12, 11, 0.94) 0%, rgba(14, 12, 11, 0.2) 55%, transparent 75%),
+      linear-gradient(to bottom, rgba(14, 12, 11, 0.8) 0%, transparent 30%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .table-hero__hint::before {
+    animation: none;
+    opacity: 0.8;
+  }
+}

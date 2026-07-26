@@ -3,6 +3,7 @@ import Header from "@/components/Header";
 import PageEffects from "@/components/PageEffects";
 import MenuList from "@/components/MenuList";
 import AskTheBar from "@/components/AskTheBar";
+import HeroTable from "@/components/HeroTable";
 import HeroSection from "@/components/HeroSection";
 import { getEvents, getGallery, getMenu, getVenue } from "@/content";
 
@@ -25,6 +26,7 @@ export default async function Home() {
       <PageEffects />
       <Header />
 
+      <HeroTable />
       <HeroSection />
 
       {/* 01 — The room */}
@@ -80,7 +82,7 @@ export default async function Home() {
       </div>
 
       {/* 02 — The list */}
-      <section className="section section--raised" id="list">
+      <section className="section section--raised" id="full-list">
         <div className="inner">
           <div className="section-head" data-reveal>
             <p className="eyebrow">02 — The list</p>
