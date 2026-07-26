@@ -1,19 +1,31 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Jost } from "next/font/google";
+import localFont from "next/font/local";
 import SmoothScroll from "@/components/SmoothScroll";
 import "./globals.css";
 
-const display = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  style: ["normal", "italic"],
-  variable: "--font-display",
-});
-
-const body = Jost({
-  subsets: ["latin"],
-  weight: ["300", "400", "500"],
-  variable: "--font-body",
+/**
+ * Host Grotesk, self-hosted.
+ *
+ * It is not in this Next version's `next/font/google` catalogue, so importing
+ * it from there fails to compile. Self-hosting the variable woff2 files works
+ * regardless of that catalogue and avoids a third-party request. Host Grotesk
+ * is SIL Open Font Licensed, so redistribution with the app is permitted.
+ */
+const hostGrotesk = localFont({
+  src: [
+    {
+      path: "./fonts/HostGrotesk-Variable.woff2",
+      weight: "300 800",
+      style: "normal",
+    },
+    {
+      path: "./fonts/HostGrotesk-Italic-Variable.woff2",
+      weight: "300 800",
+      style: "italic",
+    },
+  ],
+  variable: "--font-host",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -40,7 +52,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
+    <html lang="en" className={hostGrotesk.variable}>
       <body>
         <script
           type="application/ld+json"

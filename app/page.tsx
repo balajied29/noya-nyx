@@ -234,8 +234,7 @@ export default async function Home() {
       <footer className="footer">
         <div className="footer__wordmark" aria-hidden>
           <span>
-            Noya
-            <em>by NYX</em>
+            <span className="logo footer__logo" />
           </span>
         </div>
         <div className="footer__base">

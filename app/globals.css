@@ -16,6 +16,11 @@
   --transition: 0.4s var(--ease);
   --pad: clamp(22px, 4vw, 86px);
   --maxw: 1240px;
+
+  /* Host Grotesk carries the whole site; hierarchy comes from weight and
+     tracking rather than from a second family. */
+  --font-display: var(--font-host);
+  --font-body: var(--font-host);
 }
 
 * {
@@ -60,10 +65,10 @@ ul {
 /* ---------- type ---------- */
 
 .display {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
   font-weight: 300;
-  line-height: 1.02;
-  letter-spacing: -0.005em;
+  line-height: 1.04;
+  letter-spacing: -0.028em;
   text-wrap: balance;
 }
 
@@ -219,7 +224,7 @@ ul {
 }
 
 .header__brand {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
   font-size: clamp(1.25rem, 1.6vw, 1.6rem);
   font-weight: 400;
   letter-spacing: 0.36em;
@@ -467,9 +472,10 @@ ul {
 }
 
 .list__name {
-  font-family: var(--font-display), serif;
-  font-size: clamp(1.3rem, 1.9vw, 1.75rem);
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.2rem, 1.7vw, 1.6rem);
   font-weight: 300;
+  letter-spacing: -0.02em;
   line-height: 1.15;
 }
 
@@ -518,7 +524,8 @@ ul {
 }
 
 .ask__question {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: -0.024em;
   font-size: clamp(1.5rem, 2.6vw, 2.4rem);
   font-weight: 300;
   line-height: 1.15;
@@ -575,7 +582,8 @@ ul {
 }
 
 .ask__result-name {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
+  letter-spacing: -0.028em;
   font-size: clamp(2.2rem, 4.4vw, 3.6rem);
   font-weight: 300;
   line-height: 1.05;
@@ -707,24 +715,9 @@ ul {
   text-align: center;
 }
 
+/* The wrapper clips the mark so it can rise into view on scroll. */
 .footer__wordmark span {
   display: block;
-  font-family: var(--font-display), serif;
-  font-weight: 300;
-  font-size: clamp(4rem, 21vw, 21rem);
-  line-height: 0.86;
-  letter-spacing: 0.06em;
-  text-indent: 0.06em;
-  color: rgba(242, 237, 227, 0.07);
-  text-transform: uppercase;
-}
-
-.footer__wordmark em {
-  display: block;
-  font-size: 0.36em;
-  font-style: italic;
-  letter-spacing: 0.1em;
-  color: rgba(217, 168, 98, 0.22);
 }
 
 .footer__base {
@@ -801,4 +794,27 @@ ul {
   .slab {
     max-width: none;
   }
+}
+
+
+/* ---------- logo ---------- */
+
+/* The supplied artwork is black on transparent, so masking with it and
+   filling from currentColor lets one asset sit on any background. */
+.logo {
+  display: block;
+  aspect-ratio: 2400 / 825;
+  background-color: currentColor;
+  -webkit-mask: url("/noya-logo.png") center / contain no-repeat;
+  mask: url("/noya-logo.png") center / contain no-repeat;
+}
+
+.header__brand .logo {
+  height: clamp(19px, 2.1vw, 27px);
+}
+
+.footer__logo {
+  width: min(100%, 62rem);
+  margin-inline: auto;
+  color: rgba(242, 237, 227, 0.13);
 }

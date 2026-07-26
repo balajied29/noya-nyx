@@ -20,8 +20,8 @@ export default function Header() {
 
   return (
     <header className={`header ${solid ? "header--solid" : ""}`}>
-      <a href="#top" className="header__brand">
-        Noya
+      <a href="#top" className="header__brand" aria-label="Noya by NYX — home">
+        <span className="logo" />
       </a>
       <div className="header__right">
         <nav className="header__links">
