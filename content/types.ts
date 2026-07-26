@@ -15,9 +15,26 @@ export type VenueId = "noya" | "omara";
  *  filter and bulk-edit; formatting happens at render time. */
 export type Price = number;
 
+/** 0–5 on each axis, for the spec-sheet meters. */
+export type TasteProfile = {
+  sweet: number;
+  sour: number;
+  bitter: number;
+  strength: number;
+};
+
 export type MenuItem = {
   id: string;
   name: string;
+  /** Short flavour tags, e.g. "smoky / citrus / long". */
+  tags?: string;
+  /** Build with measures, for the spec sheet. */
+  build?: { measure: string; what: string }[];
+  glass?: string;
+  garnish?: string;
+  taste?: TasteProfile;
+  /** Hero photograph for the featured view. */
+  image?: string;
   /** Omit for market-price or unpriced items. */
   price?: Price;
   /** Rendered as a middot-separated list. */

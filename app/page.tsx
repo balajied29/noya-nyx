@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 import PageEffects from "@/components/PageEffects";
 import MenuList from "@/components/MenuList";
 import AskTheBar from "@/components/AskTheBar";
-import DrinkStage from "@/components/DrinkStage";
+import HeroSection from "@/components/HeroSection";
 import { getEvents, getGallery, getMenu, getVenue } from "@/content";
 
 const MARQUEE_WORDS = ["Smoke", "Silk", "Citrus", "Fire"];
@@ -25,7 +25,7 @@ export default async function Home() {
       <PageEffects />
       <Header />
 
-      <DrinkStage />
+      <HeroSection />
 
       {/* 01 — The room */}
       <section className="section" id="room">

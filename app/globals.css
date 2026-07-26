@@ -819,449 +819,336 @@ ul {
   color: rgba(242, 237, 227, 0.13);
 }
 
-/* ---------- 3D hero ---------- */
 
-.glass-scene {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  cursor: grab;
-  touch-action: pan-y;
-}
+/* =========================================================
+   Lineup hero — spec sheets for the signatures
+   ========================================================= */
 
-.glass-scene:active {
-  cursor: grabbing;
-}
-
-.glass-scene canvas {
-  display: block;
-}
-
-/* With the object present, the photograph drops back to a texture and the
-   copy moves left so the two do not fight for the same space. */
-.hero--3d .hero__media img {
-  opacity: 0.42;
-  filter: saturate(0.85);
-}
-
-.hero--3d .hero__media::after {
-  background: radial-gradient(
-      110% 75% at 62% 45%,
-      rgba(14, 12, 11, 0.35) 0%,
-      rgba(14, 12, 11, 0.82) 68%,
-      rgba(14, 12, 11, 0.96) 100%
-    ),
-    linear-gradient(to top, rgba(9, 8, 7, 0.96) 0%, rgba(9, 8, 7, 0) 58%);
-}
-
-.hero--3d .hero__content {
+.hero--lineup {
   position: relative;
-  z-index: 2;
-  pointer-events: none;
-  max-width: min(var(--maxw), 100%);
-}
-
-/* Links stay clickable; the rest of the block lets drags through to the canvas. */
-.hero--3d .hero__content a,
-.hero--3d .hero__content button {
-  pointer-events: auto;
-}
-
-.hero--3d .hero__title {
-  /* Wraps to three short lines, leaving the right half for the object. */
-  max-width: 6.2em;
-}
-
-.hero--3d .body-copy {
-  max-width: 27em;
-}
-
-.hero__hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-left: 1.6rem;
-  color: var(--brass);
-  opacity: 0.75;
-}
-
-.hero__hint::before {
-  content: "";
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  animation: hintPulse 2s ease-in-out infinite;
-}
-
-@keyframes hintPulse {
-  0%, 100% { opacity: 0.3; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.15); }
-}
-
-@media (max-width: 860px) {
-  /* Phone: the object sits above the copy rather than behind it. */
-  .hero--3d {
-    align-items: flex-end;
-  }
-
-  .glass-scene {
-    inset: auto 0 auto 0;
-    top: 3svh;
-    height: 42svh;
-  }
-
-  .hero--3d .hero__content {
-    padding-bottom: 2vh;
-  }
-
-  .hero__hint {
-    margin-left: 0;
-    margin-top: 0.6rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero__hint::before {
-    animation: none;
-    opacity: 0.8;
-  }
-}
-
-/* ---------- drink builder hero ---------- */
-
-.drink-hero {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-}
-
-.drink-scene {
-  position: absolute;
-  inset: 0;
-  touch-action: pan-y;
-}
-
-.drink-scene canvas {
-  display: block;
-  cursor: grab;
-}
-
-.drink-scene canvas:active {
-  cursor: grabbing;
-}
-
-/* Orb labels (rendered into 3D space by drei's Html) */
-.orb-html {
-  pointer-events: none;
-}
-
-.orb-label {
-  pointer-events: none;
+  min-height: 100svh;
   display: grid;
-  gap: 0.15rem;
-  justify-items: center;
-  text-align: center;
-  background: none;
-  border: 0;
-  padding: 0.3rem 0.5rem;
-  cursor: pointer;
-  font-family: var(--font-body), sans-serif;
-  white-space: nowrap;
-  transition: transform var(--transition), opacity var(--transition);
-}
-
-.orb-label__name {
-  display: block;
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--bone);
-  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85);
-}
-
-.orb-label__note {
-  display: block;
-  font-size: 0.62rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.85);
-}
-
-.orb-label:hover,
-.orb-label.is-armed {
-  transform: translateY(-2px);
-}
-
-.orb-label:hover .orb-label__name,
-.orb-label.is-armed .orb-label__name {
-  color: var(--brass-soft);
-}
-
-.orb-label.is-dragging {
-  opacity: 0.5;
-}
-
-/* Read-out and CTA */
-.drink-readout {
-  position: absolute;
-  left: var(--pad);
-  bottom: clamp(38px, 7vh, 92px);
-  z-index: 3;
-  display: grid;
-  gap: 1.1rem;
-  max-width: 26rem;
-  pointer-events: none;
-}
-
-.drink-readout > * {
-  pointer-events: auto;
-}
-
-.drink-readout__eyebrow {
-  font-size: 0.68rem;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--brass);
-  margin-bottom: 0.7rem;
-}
-
-.drink-readout__name {
-  font-family: var(--font-display), sans-serif;
-  font-size: clamp(1.9rem, 3.6vw, 3.1rem);
-  font-weight: 300;
-  letter-spacing: -0.028em;
-  line-height: 1.04;
-  color: var(--bone);
-}
-
-.drink-readout__name.is-signature {
-  color: var(--brass-soft);
-}
-
-.drink-readout__blurb {
-  margin-top: 0.7rem;
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: rgba(242, 237, 227, 0.66);
-  max-width: 24em;
-}
-
-.drink-cta {
-  display: grid;
-  gap: 0.6rem;
-  justify-items: start;
-}
-
-.drink-cta .slab {
-  max-width: 22rem;
-  padding: 1.1em 1.4em;
-}
-
-.drink-reset {
-  justify-self: start;
-  background: none;
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  color: var(--muted);
-  font-family: var(--font-body), sans-serif;
-  font-size: 0.68rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  padding-bottom: 0.35em;
-  cursor: pointer;
-  transition: color var(--transition), border-color var(--transition);
-}
-
-.drink-reset:hover {
-  color: var(--brass);
-  border-color: var(--brass);
-}
-
-/* With the builder present the hero copy steps aside */
-.hero--builder .hero__content {
-  position: relative;
-  z-index: 4;
-  pointer-events: none;
-  align-self: flex-start;
-  padding-top: clamp(96px, 14vh, 170px);
-}
-
-.hero--builder .hero__title {
-  max-width: 7em;
-  font-size: clamp(2.3rem, 5vw, 4.6rem);
-}
-
-.hero--builder .body-copy,
-.hero--builder .hero__scroll {
-  display: none;
-}
-
-.hero--builder .hero__media img {
-  opacity: 0.2;
-}
-
-.hero--builder .hero__media::after {
-  background: radial-gradient(
-      100% 70% at 50% 45%,
-      rgba(14, 12, 11, 0.55) 0%,
-      rgba(14, 12, 11, 0.9) 70%,
-      rgba(14, 12, 11, 0.98) 100%
-    );
-}
-
-@media (max-width: 980px) {
-  .drink-readout {
-    max-width: 18rem;
-  }
-
-  .drink-readout__blurb {
-    display: none;
-  }
-}
-
-@media (max-width: 860px) {
-  .hero--builder .hero__content {
-    padding-top: clamp(80px, 12vh, 120px);
-  }
-
-  .hero--builder .hero__title {
-    font-size: clamp(2rem, 8vw, 2.6rem);
-  }
-
-  .hero--builder .body-copy,
-  .hero--builder .hero__scroll,
-  .hero--builder .hero__hint {
-    display: none;
-  }
-
-  .drink-readout {
-    left: var(--pad);
-    right: var(--pad);
-    bottom: clamp(20px, 4vh, 40px);
-    max-width: none;
-  }
-
-  .drink-readout__name {
-    font-size: clamp(1.5rem, 6.5vw, 2rem);
-  }
-
-  .orb-label__note {
-    display: none;
-  }
-
-  .orb-label__name {
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
-  }
-}
-
-
-/* ---------- phone ingredient chips ---------- */
-
-/* Desktop drags the orbs directly; this row is the phone affordance. */
-.drink-chips {
-  display: none;
-}
-
-@media (max-width: 860px) {
-  .drink-chips { display: none; }
-
-  .drink-chips::-webkit-scrollbar {
-    display: none;
-  }
-
-  .drink-chip {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: rgba(21, 18, 17, 0.9);
-    border: 1px solid var(--line);
-    border-radius: 999px;
-    color: var(--bone);
-    font-family: var(--font-body), sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    padding: 0.85em 1.15em;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-
-  .drink-chip:active {
-    border-color: var(--brass);
-  }
-
-  .drink-chip__dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: var(--chip);
-    box-shadow: 0 0 8px var(--chip);
-  }
-}
-
-/* ---------- scroll stage ---------- */
-
-.stage {
-  position: relative;
-  /* One viewport to read, then scroll distance per pour, then a hold on the
-     finished drink. Shorter per-step travel on phones so it is not endless. */
-  --step-travel: 80vh;
-  height: calc(100svh + 6 * var(--step-travel) + 60vh);
-}
-
-.stage__pin {
-  position: sticky;
-  top: 0;
-  height: 100svh;
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(1rem, 2vw, 2rem);
+  padding: clamp(84px, 10vh, 108px) var(--pad) clamp(18px, 3vh, 32px);
+  align-items: start;
   overflow: hidden;
 }
 
-.stage__pin .hero {
-  min-height: 100svh;
-  height: 100svh;
+.hero--lineup .hero__media img {
+  opacity: 0.14;
+  filter: saturate(0.8);
 }
 
-/* Progress rail through the pours */
-.pour-rail {
+.hero--lineup .hero__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 80% at 50% 30%,
+    rgba(14, 12, 11, 0.6),
+    rgba(14, 12, 11, 0.96)
+  );
+}
+
+.hero__head {
+  position: relative;
+  z-index: 2;
   display: flex;
-  gap: 0.35rem;
-  margin-bottom: 1.2rem;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.4rem;
 }
 
-.pour-rail__tick {
-  width: 26px;
+.hero__head .display--l {
+  font-size: clamp(1.35rem, 2.1vw, 1.9rem);
+  letter-spacing: -0.02em;
+}
+
+.hero__head .accent-italic {
+  display: inline;
+  margin-left: 0.3em;
+}
+
+.lineup {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: clamp(1rem, 2vw, 1.6rem);
+  min-height: 0;
+}
+
+/* Warm pool of light behind the featured drink. */
+.lineup__wash {
+  position: absolute;
+  inset: -20% -10% -10% 30%;
+  background: radial-gradient(
+    50% 50% at 60% 45%,
+    rgba(217, 168, 98, 0.16),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.lineup__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  min-height: 0;
+}
+
+/* ---------- spec sheet ---------- */
+
+.spec {
+  display: grid;
+  gap: clamp(0.9rem, 1.4vw, 1.3rem);
+  align-content: center;
+  max-width: 34rem;
+}
+
+.spec__index {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+}
+
+.spec__name {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.9rem, 3.5vw, 3.1rem);
+  font-weight: 300;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin-top: 0.35rem;
+}
+
+.spec__tags {
+  margin-top: 0.7rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+
+.spec__build {
+  margin-top: clamp(0.9rem, 1.4vw, 1.3rem);
+  display: grid;
+  max-width: 26rem;
+}
+
+.spec__build li {
+  display: grid;
+  grid-template-columns: 5.5rem 1fr;
+  gap: 1rem;
+  padding-block: 0.38rem;
+  border-bottom: 1px solid rgba(242, 237, 227, 0.09);
+  font-size: 0.9rem;
+}
+
+.spec__measure {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  align-self: center;
+}
+
+.spec__meta {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem 2.2rem;
+}
+
+.spec__meta div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.spec__meta span:first-child {
+  font-size: 0.64rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.spec__meta span:last-child {
+  font-size: 0.92rem;
+  color: var(--bone);
+}
+
+/* ---------- taste meters ---------- */
+
+.meters {
+  display: grid;
+  gap: 0.4rem;
+  max-width: 22rem;
+}
+
+.meter {
+  display: grid;
+  grid-template-columns: 4.6rem 1fr 1.2rem;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.meter__label {
+  font-size: 0.64rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.meter__track {
   height: 2px;
-  background: rgba(242, 237, 227, 0.18);
-  transition: background 0.45s var(--ease), box-shadow 0.45s var(--ease);
+  background: rgba(242, 237, 227, 0.12);
+  position: relative;
+  overflow: hidden;
 }
 
-.pour-rail__tick.is-done {
-  background: var(--tick);
-  box-shadow: 0 0 10px var(--tick);
+.meter__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--brass);
+  transform-origin: left;
+  will-change: transform;
+}
+
+.meter__value {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ---------- featured plate ---------- */
+
+.plate {
+  position: relative;
+  height: min(50svh, 430px);
+}
+
+.plate__figure {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.plate__figure img {
+  object-fit: cover;
+}
+
+/* ---------- rail ---------- */
+
+.rail {
+  display: flex;
+  gap: clamp(0.5rem, 1vw, 0.9rem);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-block: 0.4rem;
+  margin-inline: calc(var(--pad) * -1);
+  padding-inline: var(--pad);
+  scroll-snap-type: x proximity;
+}
+
+.rail::-webkit-scrollbar {
+  display: none;
+}
+
+.rail__slot {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  display: grid;
+  gap: 0.55rem;
+  justify-items: center;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.42;
+  transition: opacity 0.4s var(--ease);
+}
+
+.rail__slot:hover,
+.rail__slot.is-active {
+  opacity: 1;
+}
+
+.rail__thumb {
+  position: relative;
+  display: block;
+  width: clamp(60px, 7vw, 92px);
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: 2px;
+  filter: grayscale(1);
+  transition: filter 0.45s var(--ease), box-shadow 0.45s var(--ease);
+}
+
+.rail__slot.is-active .rail__thumb {
+  filter: none;
+  box-shadow: 0 0 0 1px var(--brass), 0 8px 30px rgba(217, 168, 98, 0.22);
+}
+
+.rail__thumb img {
+  object-fit: cover;
+}
+
+.rail__name {
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.rail__slot.is-active .rail__name {
+  color: var(--bone);
+}
+
+/* ---------- narrow ---------- */
+
+@media (max-width: 980px) {
+  .lineup__grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .plate {
+    order: -1;
+    height: min(38svh, 320px);
+    max-width: 26rem;
+  }
+
+  .spec__name {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+  }
 }
 
 @media (max-width: 860px) {
-  .stage {
-    --step-travel: 62vh;
-    height: calc(100svh + 6 * var(--step-travel) + 46vh);
+  .hero--lineup {
+    padding-top: clamp(84px, 11vh, 120px);
+    min-height: auto;
   }
 
-  .pour-rail__tick {
-    width: 18px;
-  }
-}
-
-/* Motion-sensitive visitors get the whole drink without the scroll ride. */
-@media (prefers-reduced-motion: reduce) {
-  .stage {
-    height: auto;
+  .hero__head .display--l {
+    font-size: clamp(1.9rem, 8vw, 2.4rem);
   }
 
-  .stage__pin {
-    position: relative;
+  .spec__build li {
+    grid-template-columns: 4.6rem 1fr;
+    font-size: 0.88rem;
+  }
+
+  .spec__meta {
+    gap: 1rem 1.8rem;
+  }
+
+  .meters {
+    max-width: none;
   }
 }
