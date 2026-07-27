@@ -273,6 +273,12 @@ export default async function Home() {
         </div>
         <div className="footer__base">
           <p>© 2026 Noya by NYX · Hotel Palacio, Guwahati</p>
+          <p className="footer__credit">
+            Designed and built by{" "}
+            <a href="https://onlybees.in" target="_blank" rel="noreferrer">
+              ONLYBEES
+            </a>
+          </p>
           <p>
             <a href="#top">Back to top</a>
           </p>

@@ -747,6 +747,18 @@ ul {
   color: var(--brass);
 }
 
+/* The build credit sits with the other fine print, not above it. */
+.footer__credit a {
+  color: var(--bone);
+  letter-spacing: 0.06em;
+  border-bottom: 1px solid var(--line);
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.footer__credit a:hover {
+  border-color: var(--brass);
+}
+
 /* ---------- notice ---------- */
 
 .notice {
@@ -1497,5 +1509,89 @@ a:hover > .logo,
   .table-hero__hint::before {
     animation: none;
     opacity: 0.8;
+  }
+}
+
+/* ---------- first-visit loader ---------- */
+
+/* Hidden until the boot script opts in. A visitor without JS must never meet
+   a curtain that nothing is left to lift. */
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--ink-deep);
+  opacity: 0;
+  visibility: hidden;
+}
+
+html[data-loader="on"] {
+  overflow: hidden;
+}
+
+html[data-loader="on"] .loader {
+  opacity: 1;
+  visibility: visible;
+}
+
+html[data-loader="off"] .loader {
+  opacity: 0;
+  visibility: hidden;
+  /* Visibility waits out the fade so the curtain does not vanish mid-dissolve. */
+  transition: opacity 0.62s var(--ease), visibility 0s linear 0.62s;
+}
+
+/* The same pour the header wordmark does on hover: a two-stop gradient twice
+   the mark's height, masked by the logo, with the window sliding from the
+   dim half onto the brass one. */
+.loader__mark {
+  display: block;
+  width: min(62vw, 360px);
+  aspect-ratio: 2400 / 825;
+  background-image: linear-gradient(
+    to top,
+    var(--brass) 50%,
+    rgba(242, 237, 227, 0.12) 50%
+  );
+  background-size: 100% 200%;
+  background-position: 0 0;
+  -webkit-mask: url("/noya-logo.png") center / contain no-repeat;
+  mask: url("/noya-logo.png") center / contain no-repeat;
+}
+
+html[data-loader="on"] .loader__mark {
+  animation: loader-pour 1.25s var(--ease) forwards;
+}
+
+/* Lifting the mark a few pixels as it goes reads as the page arriving,
+   rather than the loader merely disappearing. */
+html[data-loader="off"] .loader__mark {
+  background-position: 0 100%;
+  transform: translateY(-8px);
+  transition: transform 0.62s var(--ease);
+}
+
+@keyframes loader-pour {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-loader="on"] .loader__mark {
+    animation: none;
+    background-position: 0 100%;
+  }
+  html[data-loader="off"] .loader {
+    transition: opacity 0.2s linear, visibility 0s linear 0.2s;
+  }
+  html[data-loader="off"] .loader__mark {
+    transform: none;
+    transition: none;
   }
 }
