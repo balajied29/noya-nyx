@@ -5,6 +5,7 @@ import MenuList from "@/components/MenuList";
 import AskTheBar from "@/components/AskTheBar";
 import HeroTable from "@/components/HeroTable";
 import HeroSection from "@/components/HeroSection";
+import ReservationForm from "@/components/ReservationForm";
 import { getEvents, getGallery, getMenu, getVenue } from "@/content";
 
 const MARQUEE_WORDS = ["Smoke", "Silk", "Citrus", "Fire"];
@@ -212,6 +213,14 @@ export default async function Home() {
             <p className="eyebrow">05 — Private</p>
             <h2 className="display display--l">{buyout.title}.</h2>
             <p className="body-copy">{buyout.blurb}</p>
+          </div>
+
+          {/* The booking path. The slabs below stay: some guests would rather
+              message than fill in a form, and a buy-out enquiry usually wants
+              a conversation. */}
+          <div className="private__book" data-reveal>
+            <h3 className="title-m">Request a table</h3>
+            <ReservationForm />
           </div>
 
           <div className="private__actions" data-reveal>
