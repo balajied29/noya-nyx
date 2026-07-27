@@ -49,7 +49,8 @@ export default function CocktailHero({ drinks }: { drinks: MenuItem[] }) {
 
   // Idles through the list until the visitor takes over.
   useEffect(() => {
-    if (!auto || reduce) return;
+    // `% 0` is NaN, which would park the index off the list forever.
+    if (!auto || reduce || drinks.length === 0) return;
     const t = window.setInterval(
       () => setIndex((i) => (i + 1) % drinks.length),
       4200
@@ -89,6 +90,12 @@ export default function CocktailHero({ drinks }: { drinks: MenuItem[] }) {
     const target = el.offsetLeft - rail.clientWidth / 2 + el.clientWidth / 2;
     rail.scrollTo({ left: target, behavior: reduce ? "auto" : "smooth" });
   }, [index, reduce]);
+
+  // An empty list is a real state now that the menu comes from the dashboard:
+  // staff can 86 every signature, or rename the category out from under us.
+  // Render nothing rather than index into nothing — reading `drinks[0].id` on
+  // an empty array is what broke the production build.
+  if (!active) return null;
 
   return (
     <div className="lineup" onKeyDown={onKey}>

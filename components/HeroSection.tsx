@@ -5,7 +5,10 @@ import { getMenu } from "@/content";
  *  Sits below the table hero now, as its own section. */
 export default async function HeroSection() {
   const menu = await getMenu();
-  const signatures = menu.find((c) => c.id === "signatures")?.items ?? [];
+  // Falls back to the first category: staff renaming "Signatures" in the
+  // dashboard should change what the lineup shows, not empty the section.
+  const signatures =
+    menu.find((c) => c.id === "signatures")?.items ?? menu[0]?.items ?? [];
 
   return (
     <section className="hero hero--lineup" id="list">

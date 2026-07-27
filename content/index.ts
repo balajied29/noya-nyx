@@ -86,6 +86,35 @@ type ApiEvent = {
   ctaHref: string | null;
 };
 
+/**
+ * Categories are addressed by slug, not by database id.
+ *
+ * Components look categories up by meaning — `menu.find(c => c.id ===
+ * "signatures")` drives the homepage lineup. Mongo's ObjectIds are opaque and
+ * change on every reseed, so passing them straight through blanked the hero
+ * and broke the production build. Deriving the slug from the label keeps the
+ * API and the local files addressable the same way.
+ */
+function slugify(label: string): string {
+  return (
+    label
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "") || "category"
+  );
+}
+
+/** Two categories named alike would collide; keep the ids unique for React keys. */
+function uniqueSlugs(labels: string[]): string[] {
+  const seen = new Map<string, number>();
+  return labels.map((label) => {
+    const base = slugify(label);
+    const n = seen.get(base) ?? 0;
+    seen.set(base, n + 1);
+    return n === 0 ? base : `${base}-${n + 1}`;
+  });
+}
+
 export const source: ContentSource = {
   async getVenue(id: VenueId): Promise<Venue> {
     // Address, hours and phone are not dashboard-managed yet.
@@ -95,9 +124,10 @@ export const source: ContentSource = {
   async getMenu(id: VenueId): Promise<MenuCategory[]> {
     const api = await fromApi<ApiCategory[]>(`/${id}/menu`);
     if (api?.length) {
+      const slugs = uniqueSlugs(api.map((c) => c.label));
       return api
-        .map((c) => ({
-          id: c.id,
+        .map((c, index) => ({
+          id: slugs[index],
           label: c.label,
           items: c.items.map((i) => ({
             id: i.id,
