@@ -74,7 +74,7 @@ export default async function Home() {
 
           <figure className="room__figure" data-reveal>
             <Image
-              src="/images/room-interior.jpg"
+              src="/images/room-wide.jpg"
               alt="Velvet chairs and low tables in the Noya room"
               fill
               sizes="100vw"

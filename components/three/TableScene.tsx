@@ -44,14 +44,12 @@ type Props = {
 const RIPPLES = 8;
 
 function Table({ pointer, lowPower, liftRef, hoverRef, pulseRef }: Props) {
-  // Two maps: the sharp photograph for colour, and a heavily downscaled copy
-  // for depth. Displacing from the full-resolution image turned its
-  // high-frequency detail into spikes; downscaling low-passes it into the
-  // smooth mounds the glasses actually are.
-  const [tex, depth] = useLoader(THREE.TextureLoader, [
-    "/images/bar-table.jpg",
-    "/images/bar-table-depth.jpg",
-  ]);
+  // One map: the photograph, used for colour and — after being downscaled and
+  // blurred onto a canvas below — for displacement too. Displacing from the
+  // full-resolution image turned its high-frequency detail into spikes;
+  // downscaling low-passes it into the smooth mounds the glasses actually are.
+  // A pre-baked depth file used to be loaded here as well; it was never read.
+  const tex = useLoader(THREE.TextureLoader, "/images/bar-top.jpg");
   const mesh = useRef<THREE.Mesh>(null);
   const key = useRef<THREE.PointLight>(null);
   const { camera } = useThree();

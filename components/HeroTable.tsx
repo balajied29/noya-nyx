@@ -123,7 +123,7 @@ export default function HeroTable() {
         ) : (
           // No WebGL, or data saver on: the photograph carries it alone.
           <Image
-            src="/images/bar-table.jpg"
+            src="/images/bar-top.jpg"
             alt="Cocktails across the Noya bar top"
             fill
             priority
