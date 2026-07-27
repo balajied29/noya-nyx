@@ -231,7 +231,7 @@ export const gallery: GalleryImage[] = [
   { id: "g5", src: "/images/plate-skewers.jpg", alt: "Skewers and pickles, plated", category: "Plates", order: 5 },
   { id: "g6", src: "/images/shaker-pour.jpg", alt: "Pouring into the shaker", category: "The bar", order: 6 },
   { id: "g7", src: "/images/cocktail-velvet.jpg", alt: "A coupe resting on velvet", category: "The bar", order: 7 },
-  { id: "g8", src: "/images/red-blur.jpg", alt: "The room after eleven", category: "Late", order: 8 },
+  { id: "g8", src: "/images/bartender-late.jpg", alt: "A drink built at the bar, late", category: "Late", order: 8 },
   { id: "g9", src: "/images/plate-bowl.jpg", alt: "A shared bowl", category: "Plates", order: 9 },
   { id: "g10", src: "/images/chairs-dark.jpg", alt: "A corner table", category: "The room", order: 10 },
   { id: "g11", src: "/images/jigger.jpg", alt: "Measuring a pour", category: "The bar", order: 11 },

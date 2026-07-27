@@ -76,7 +76,7 @@ export default async function Home() {
               src="/images/room-interior.jpg"
               alt="Velvet chairs and low tables in the Noya room"
               fill
-              sizes="(max-width: 860px) 100vw, 80vw"
+              sizes="100vw"
               quality={62}
             />
           </figure>
