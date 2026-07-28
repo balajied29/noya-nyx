@@ -59,13 +59,15 @@ export async function requestTable(
   });
 
   if (!ok) {
-    // Never tell a guest their table is requested when it is not. Noya's
-    // public phone number is still a placeholder in content/noya.ts, so there
-    // is no number to fall back to here yet.
+    // Never tell a guest their table is requested when it is not.
+    //
+    // Instagram is the fallback because it is the one channel that genuinely
+    // reaches the bar: the public phone number in content/noya.ts is still a
+    // placeholder. Swap it for the number once there is one.
     return {
       status: "error",
       message:
-        "We could not send that just now. Please try again in a moment, or message us on Instagram.",
+        "We could not send that just now. Please try again in a moment, or message us on Instagram at @noya_by_nyx.",
     };
   }
 

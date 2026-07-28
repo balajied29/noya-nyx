@@ -19,6 +19,7 @@ export const venue: Venue = {
     "Guwahati 781008, Assam",
   ],
   phone: "[+91 00000 00000]",
+  instagram: "https://www.instagram.com/noya_by_nyx/",
   phoneHref: "tel:+910000000000",
   hours: [
     { label: "Tuesday — Sunday", value: "6pm until late" },

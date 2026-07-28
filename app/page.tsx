@@ -266,7 +266,18 @@ export default async function Home() {
               </ul>
             </div>
             <div data-reveal>
-              <h3>Also here</h3>
+              <h3>Follow</h3>
+              <p>
+                <a
+                  href={venue.instagram}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "var(--brass)" }}
+                >
+                  @noya_by_nyx ↗
+                </a>
+              </p>
+              <h3 style={{ marginTop: "1.4rem" }}>Also here</h3>
               <p>Omara, our modern Indian dining room, shares the building.</p>
               {/* The nights themselves live in 04 — On the calendar now. */}
             </div>
